@@ -24,3 +24,5 @@ Utility program with PySimpleGUI interface to update inventory dates by barcode 
 
 # Notes
 Inspired by [Jeremy Hobb's LazyLists](https://github.com/MrJeremyHobbs/LazyLists/tree/master) but written by me from scratch because it was easier for me to do that than learn someone else's code vernacular.
+
+To make it easy to have library staff run this, I used auto-py-to-exe (that's built off of PyInstaller) to generate a portable .exe package to use. As the generated .exe is environment depenedent feel free to do something similar.
