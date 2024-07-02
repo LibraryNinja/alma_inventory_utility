@@ -1,0 +1,27 @@
+{
+	"bibapi" : "ENTER YOUR BIBS R/W API KEY HERE",
+	"alma_base" : "https://api-na.hosted.exlibrisgroup.com/almaws/v1",
+	"headers" : 
+		{"Accept": "application/xml", "Content-Type": "application/xml"},
+	
+	"statuslist": ["ACQ", "CLAIM_RETURNED_LOAN", "HOLDSHELF", "ILL", "LOAN", "LOST_ILL", "LOST_LOAN", "LOST_LOAN_AND_PAID", "MISSING", "REQUESTED", "TECHNICAL", "TRANSIT", "TRANSIT_TO_REMOTE_STORAGE", "WORK_ORDER_DEPARTMENT"],
+	"processlabel":{
+		"ACQ":"Acquisitions",
+		"CLAIM_RETURNED_LOAN":"Claimed Returned",
+		"HOLDSHELF":"On Hold Shelf",
+		"ILL":"Resource Sharing Request",
+		"LOAN":"On Loan",
+		"LOST_ILL":"Lost Resource Sharing Request",
+		"LOST_LOAN":"Lost",		
+		"LOST_LOAN_AND_PAID":"Lost and Paid",		
+		"MISSING":"Missing",	
+		"REQUESTED":"Requested",	
+		"TECHNICAL":"Technical Migration",		
+		"TRANSIT":"In Transit",		
+		"TRANSIT_TO_REMOTE_STORAGE":"In Transit to Remote Storage",	
+		"WORK_ORDER_DEPARTMENT":"In Work Order"		
+		},
+	"default_message": "Please scan barcode to continue"
+		
+	
+}
