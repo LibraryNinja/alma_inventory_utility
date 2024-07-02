@@ -1,7 +1,7 @@
 # Alma Inventory Date Updater
 Utility program with PySimpleGUI interface to update inventory dates by barcode in Alma on scan. Instant feedback for errors/issues.
 
-<img src=https://github.com/LibraryNinja/alma_inventory_utility/blob/main/inventory_updater_screenshot.png width="350">
+<img src=https://github.com/LibraryNinja/alma_inventory_utility/blob/main/PSG_version/inventory_updater_screenshot.png width="350">
 
 # How it works
 - Makes initial call to Alma API to check for existence of barcode in system (Note: The barcode-based call is an alias, but it will return the full item record with proper identifiers)
