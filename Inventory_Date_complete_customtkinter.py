@@ -4,7 +4,9 @@ from datetime import datetime
 import logging
 from bs4 import BeautifulSoup
 import requests
+from requests.exceptions import ConnectionError
 import json
+from CustomTkinterMessagebox import CTkMessagebox
 
 
 #Sets up logging
@@ -18,7 +20,7 @@ with open('settings.json') as config_file:
 bibapi = settings['bibapi']
 #Base Alma server URL
 alma_base = settings['alma_base']
-headers = settings['headers']
+#headers = settings['headers']
 #Taken from the PROCESSTYPE code table (https://developers.exlibrisgroup.com/blog/Working-with-the-code-tables-API/)
 statuslist = settings['statuslist']
 #Gives that list user-friendly labels:
@@ -34,16 +36,30 @@ scandate = (f"{rawdate}Z")
 
 #Look up item by barcode, if found get item record XML
 def scan_barcode (barcode, alma_base, bibapi):
-
+    headers = settings['headers']
     #Set up default things for base URL and bib API key
-    r = requests.get(f"{alma_base}/items?view=label&item_barcode={barcode}&apikey={bibapi}", headers=headers)
-    
-    if r.status_code != 200:
-        founditem = False
-    else:
-        founditem = True
+    try: 
+        r = requests.get(f"{alma_base}/items?view=label&item_barcode={barcode}&apikey={bibapi}",  headers=headers)
+        
+        #If status code is returned and isn't =200, that means it was able to connect to the server but the record wasn't returned (item likely not found)
+        if r.status_code != 200:
+            founditem = False
+            connectFail = False
+        
+        #Otherwise, status code assumed to be 200, connection made and record found
+        else:
+            founditem = True
+            connectFail = False
 
-    return(founditem, r, headers)
+        return(founditem, connectFail, r, headers)
+    
+    #Adds timeout exception if unable to connect to server to check for item
+    except ConnectionError:
+        connectFail = True
+        founditem = False
+        r = ""
+        return(founditem, connectFail, r, headers)
+
 
 #Parses item data XML to find elements for display and eventual record update
 def retreive_item_data (r, scandate):
@@ -205,8 +221,13 @@ class Widget:
     def frameError (self):
         self.infoframe.configure(fg_color="#f1aeb5")
 
+    #Turns information frame blue for a note
     def frameNote (self):
         self.infoframe.configure(fg_color="#a4ddf1")
+
+    #Popup box for connection error
+    def connectError (self):
+        CTkMessagebox.messagebox(title="Check Connection", text="Unable to connect to Alma, please check internet connection.", size="400x150")
 
     #Clears central item information display (Text widget must be set to normal state for editing, disables it again after so text can't be added by user)
     def displayClear (self):
@@ -256,14 +277,25 @@ class Widget:
         self.runProgressBar()
 
         #Checks Alma for barcode
-        founditem, r, headers = scan_barcode (barcode, alma_base, bibapi)
+        founditem, connectFail, r, headers = scan_barcode (barcode, alma_base, bibapi)
         
+
         #If item isn't found in Alma by barcode, give user an error message and change frame color to error color
-        if founditem == False:
+        if (connectFail == True):
+            self.frameError()
+            self.killProgressBar()
+            self.connectError()
+            self.statustext.configure(text="Please resolve connection issue before continuing.")
+            #Logs that the item was scanned while not connected (for troubleshooting from log if needed later)
+            logging.error(f"Barcode {barcode} scanned. Connection attempt timed out.")
+
+        #If connection was made but item wasn't found, prompt user to set item aside (cannot update record)
+        elif (connectFail == False) & (founditem == False):
             self.frameError()
             self.killProgressBar()
             self.statustext.configure(text="Item not found! Please set aside.")
             logging.error(f"Barcode {barcode} scanned. Item not found in Alma.")
+
 
         #If found, retreives and parses item data    
         else:            
